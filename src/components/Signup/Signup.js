@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import InputControl from '../InputControl/InputControl';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {auth} from "../../firebase"
 import styles from './Signup.module.css'
 
 function Signup(){
+
+    const navigate = useNavigate();
 
     const [values, setValues] = useState({
         name: "",
@@ -25,11 +27,13 @@ function Signup(){
 
         setSubmitButtonDisabled(true);
         createUserWithEmailAndPassword(auth, values.email, values.pass)
-        .then((res)=>{
+        .then(async(res)=>{
             setSubmitButtonDisabled(false);
             const user = res.user;
-            updateProfile(user,{displayName:values.name,});
-        }).catch((err)=>{
+            await updateProfile(user,{displayName:values.name,});
+            navigate("/");
+        })
+        .catch((err)=>{
             setSubmitButtonDisabled(false);
             setErrormsg(err, err.message);
         });
@@ -53,7 +57,7 @@ function Signup(){
 
                 <div className={styles.footer}>
                 <b className={styles.error}>{errorMsg}</b>
-                    <button onClick ={handleSubmission} disabled ={submitButtonDisabled}
+                    <button  disabled ={submitButtonDisabled} onClick ={handleSubmission}
                     >Signup</button>
                     <p>
                         Already have an account {" "}
